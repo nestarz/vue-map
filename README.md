@@ -6,3 +6,7 @@
 # Usage
 
 See `demo/index.html`
+
+# Requirements
+
+- ^d3@5.12.0 
