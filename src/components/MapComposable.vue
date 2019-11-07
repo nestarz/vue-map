@@ -47,7 +47,6 @@ export default {
     const setSize = () => {
       height.value = parent.value.$el.offsetHeight;
       width.value = parent.value.$el.offsetWidth;
-      console.log(height.value, width.value);
     };
     // @ts-ignore: Unreachable code error
     const resizeObserver = new ResizeObserver(setSize);

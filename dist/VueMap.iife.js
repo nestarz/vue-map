@@ -181,7 +181,6 @@ var VueMap = (function (VueCompositionApi, d3) {
       throw Error("Unknown projection, choose one supported or provide one as a function.");
   };
   const configurateProjection = (projection, projectionConfig, width = 800, height = 500) => {
-      console.log('update');
       projection.translate([width / 2, height / 2]);
       if (projectionConfig) {
           ["center", "rotate", "scale", "parralel"].forEach(funcName => {
@@ -385,7 +384,6 @@ var VueMap = (function (VueCompositionApi, d3) {
           const setSize = () => {
               height.value = parent.value.$el.offsetHeight;
               width.value = parent.value.$el.offsetWidth;
-              console.log(height.value, width.value);
           };
           // @ts-ignore: Unreachable code error
           const resizeObserver = new ResizeObserver(setSize);

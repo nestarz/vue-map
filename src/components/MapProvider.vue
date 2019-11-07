@@ -97,7 +97,6 @@ const configurateProjection = (
   width: number = 800,
   height: number = 500
 ) => {
-  console.log('update');
   projection.translate([width / 2, height / 2]);
 
   if (projectionConfig) {
