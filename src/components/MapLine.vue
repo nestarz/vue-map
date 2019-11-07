@@ -1,9 +1,16 @@
 <template>
-  <path :d="lineData" class="rsm-line" :stroke="stroke" :stroke-width="strokeWidth" :fill="fill" />
+  <path
+    :d="lineData"
+    class="rsm-line"
+    :stroke="stroke"
+    :stroke-width="strokeWidth"
+    :fill="fill"
+    v-if="!canvas"
+  />
 </template>
 
 <script lang="ts">
-import { inject, computed } from "@vue/composition-api";
+import { inject, computed, watch } from "@vue/composition-api";
 import ContextSymbol from "./context";
 
 type Vector2 = [number, number];
@@ -27,17 +34,30 @@ export default {
   },
   setup(props: Props) {
     const context = inject(ContextSymbol);
+    const lineData = computed(() => {
+      if (!context) return null;
 
+      context.update;
+      return context.path({
+        type: "LineString",
+        coordinates: props.coordinates || [props.from, props.to]
+      });
+    });
+
+    watch(() => {
+      // TODO: not any change
+      if(!context || context && !context.canvas || context && !context.svg) return;
+      const ctx = context.svg.getContext("2d");
+      ctx.beginPath();
+      ctx.strokeStyle = props.stroke;
+      ctx.lineWidth = props.strokeWidth;
+      ctx.fillStyle = props.stroke
+      const path = new Path2D(lineData.value);
+      ctx.stroke(path);
+    });
     return {
-      lineData: computed(() => {
-        if (!context) return null;
-
-        context.update;
-        return context.path({
-          type: "LineString",
-          coordinates: props.coordinates || [props.from, props.to]
-        });
-      })
+      canvas: context && context.canvas,
+      lineData
     };
   }
 };

@@ -5,14 +5,6 @@ declare const _default: {
     };
     inheritAttrs: boolean;
     props: {
-        width: {
-            type: NumberConstructor;
-            default: number;
-        };
-        height: {
-            type: NumberConstructor;
-            default: number;
-        };
         projection: {
             type: (StringConstructor | FunctionConstructor)[];
             default: string;
@@ -21,9 +13,13 @@ declare const _default: {
             type: ObjectConstructor;
             default: () => void;
         };
+        canvas: BooleanConstructor;
     };
     setup(): {
         svg: Ref<SVGSVGElement>;
+        parent: any;
+        width: Ref<number>;
+        height: Ref<number>;
     };
 };
 export default _default;

@@ -8,9 +8,10 @@
         <map-composable
         :projection="projection"
         :projection-config="projectionConfig"
+        :canvas="true"
       >
         <template v-slot:default="{path, projectionFunc}">
-          <map-graticule fill="yellow" stroke="white" clip-path="url(#rsm-sphere)"></map-graticule>
+          <map-graticule fill="yellow" stroke="white" clip-path="url(#rsm-sphere)" :stroke-width="5"></map-graticule>
           <map-sphere stroke="blue" :stroke-width="2"></map-sphere>
           <map-geographies
             :geography="geoUrl"
@@ -63,7 +64,7 @@
           rotate.y = rotate.y - 0.1;
           requestAnimationFrame(animate);
         }
-        requestAnimationFrame(animate);
+        // requestAnimationFrame(animate);
         return {
           projectionConfig,
           projection: "geoOrthographic",
@@ -79,7 +80,7 @@
 
 
 <style>
-div, svg, html, body {
+div, html, body {
   height: 100%;
   width: 100%;
   margin: 0;

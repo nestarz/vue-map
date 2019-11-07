@@ -1,5 +1,5 @@
 <template>
-  <g class="rsm-marker" :transform="transform">
+  <g class="rsm-marker" :transform="transform" v-if="!canvas">
     <slot />
   </g>
 </template>
@@ -21,6 +21,7 @@ export default {
     const context = inject(ContextSymbol);
 
     return {
+      canvas: context && context.canvas,
       transform: computed(() => {
         if(!context) return null;
 

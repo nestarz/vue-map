@@ -13,6 +13,7 @@ declare type Props = {
     projection: string | Function;
     projectionConfig: ProjectionConfig;
     svg: SVGSVGElement;
+    canvas: Boolean;
 };
 declare const _default: {
     props: {
@@ -27,6 +28,7 @@ declare const _default: {
             readonly SVG_ZOOMANDPAN_MAGNIFY: number;
             readonly SVG_ZOOMANDPAN_UNKNOWN: number;
         };
+        canvas: BooleanConstructor;
     };
     setup(props: Props): {
         path: Ref<GeoPath<any, import("d3-geo").GeoPermissibleObjects>>;

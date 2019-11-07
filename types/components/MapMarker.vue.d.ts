@@ -10,6 +10,7 @@ declare const _default: {
         };
     };
     setup(props: Props): {
+        canvas: any;
         transform: import("@vue/composition-api").Ref<string>;
     };
 };

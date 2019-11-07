@@ -1,5 +1,5 @@
 <template>
-  <g>
+  <g v-if="!canvas">
     <defs>
       <clipPath :id="id">
         <path :d="spherePath" />
@@ -32,6 +32,7 @@ export default {
     const context = inject(ContextSymbol);
 
     return {
+      canvas: context && context.canvas,
       spherePath: computed(() => {
         if(!context) return null;
 

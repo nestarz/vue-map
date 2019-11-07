@@ -5,7 +5,14 @@
 </template>
 
 <script lang="ts">
-import { watch, ref, computed, onMounted, inject, Ref } from "@vue/composition-api";
+import {
+  watch,
+  ref,
+  computed,
+  onMounted,
+  inject,
+  Ref
+} from "@vue/composition-api";
 import { Topology, GeometryObject } from "topojson-specification";
 
 import {
@@ -19,8 +26,8 @@ import ContextSymbol from "./context";
 
 type Props = {
   geography: string | Topology;
-  parseGeographies: Function
-}
+  parseGeographies: Function;
+};
 
 export default {
   props: {
@@ -30,10 +37,10 @@ export default {
   setup(props: Props) {
     const context = inject(ContextSymbol);
 
-    const features:Ref<Array<GeoJSON.Feature>> = ref(null);
+    const features: Ref<Array<GeoJSON.Feature>> = ref(null);
     const geography = computed(() => props.geography);
     const geographies = computed(() => {
-      if(!context) return null;
+      if (!context) return null;
       context.update;
       return prepareFeatures(features.value, context.path);
     });
@@ -52,6 +59,16 @@ export default {
 
     watch(geography, setup);
     onMounted(setup);
+
+    const update = computed(() => context && context.update);
+    watch(update, () => {
+      if (!context || (context && !context.canvas) || (context && !context.svg))
+        return;
+
+      const ctx = context.svg.getContext("2d");
+
+      ctx.clearRect(0, 0, context.svg.width, context.svg.height);
+    });
 
     return {
       geographies

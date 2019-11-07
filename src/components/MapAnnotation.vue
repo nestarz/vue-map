@@ -1,5 +1,5 @@
 <template>
-  <g :transform="translate" class="rsm-annotation">
+  <g :transform="translate" class="rsm-annotation" v-if="!canvas">
     <path :d="connectorPath" fill="transparent" v-bind="$attrs" />
     <slot />
   </g>
@@ -39,6 +39,7 @@ export default {
     });
 
     return {
+      canvas: context && context.canvas,
       translate: computed(
         () =>
           `translate(${point.value.x + props.dx}, ${point.value.y + props.dy})`

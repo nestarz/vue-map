@@ -5,5 +5,6 @@ declare const _default: {
             required: boolean;
         };
     };
+    setup(): void;
 };
 export default _default;

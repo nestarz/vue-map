@@ -32,6 +32,7 @@ declare const _default: {
         };
     };
     setup(props: Props): {
+        canvas: any;
         lineData: import("@vue/composition-api").Ref<string>;
     };
 };

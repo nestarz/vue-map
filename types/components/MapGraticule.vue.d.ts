@@ -2,6 +2,7 @@ declare type Vector2 = [number, number];
 declare type Props = {
     fill: String;
     stroke: String;
+    strokeWidth: number;
     step: Vector2;
 };
 declare const _default: {
@@ -14,12 +15,17 @@ declare const _default: {
             type: StringConstructor;
             default: string;
         };
+        strokeWidth: {
+            type: NumberConstructor;
+            default: number;
+        };
         step: {
             type: ArrayConstructor;
             default: () => number[];
         };
     };
-    setup(props: Props): {
+    setup(props: Props, { attrs }: any): {
+        canvas: any;
         graticulePath: import("@vue/composition-api").Ref<string>;
     };
 };

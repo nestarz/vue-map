@@ -23,6 +23,7 @@ declare const _default: {
         };
     };
     setup(props: Props): {
+        canvas: any;
         translate: import("@vue/composition-api").Ref<string>;
         connectorPath: import("@vue/composition-api").Ref<string>;
     };

@@ -6,6 +6,8 @@ type Context = {
   path: GeoPath;
   projection: GeoProjection;
   update: number;
+  canvas: any;
+  svg: any
 };
 
 const ContextSymbol: InjectionKey<Context> = Symbol();

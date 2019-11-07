@@ -65,6 +65,7 @@ type Props = {
   projection: string | Function;
   projectionConfig: ProjectionConfig;
   svg: SVGSVGElement;
+  canvas: Boolean
 };
 
 type Projections = {
@@ -93,9 +94,10 @@ const makeProjection = (projectionFunc: ProviderProjection): AnyProjection => {
 const configurateProjection = (
   projection: AnyProjection,
   projectionConfig: ProjectionConfig,
-  width = 800,
-  height = 500
+  width: number = 800,
+  height: number = 500
 ) => {
+  console.log('update');
   projection.translate([width / 2, height / 2]);
 
   if (projectionConfig) {
@@ -115,7 +117,8 @@ export default {
     height: Number,
     projection: [String, Function],
     projectionConfig: Object,
-    svg: SVGSVGElement
+    svg: SVGSVGElement,
+    canvas: Boolean
   },
   setup(props: Props) {
     const svg = computed(() => props.svg);
@@ -134,6 +137,8 @@ export default {
       ContextSymbol,
       reactive({
         projection: projectionFunc,
+        canvas: props.canvas,
+        svg,
         path,
         update
       })
