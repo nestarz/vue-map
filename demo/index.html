@@ -7,7 +7,7 @@
     <div id="app">
       <div class="info">
         <h1>@eliaspourquoi/vue-map</h1>
-        <p>https://github.com/nestarz/vue-map</p>
+        <a href="https://github.com/nestarz/vue-map">https://github.com/nestarz/vue-map</a>
         <ul>
           <li>1. Canvas</li>
           <li>2. SVG</li>
@@ -137,6 +137,10 @@ div, html, body {
   display: grid;
 }
 
+a {
+  color: black;
+}
+
 .container {
   height: 50vh;
 }
@@ -144,9 +148,8 @@ div, html, body {
   position: fixed;
   padding: 1rem;
   pointer-events: none;
-  z-index: -1;
 }
-p, h1, li, ul {
+p, h1, li, ul,a {
   pointer-events: all;
   width: max-content;
   margin: 0;
@@ -155,8 +158,5 @@ p, h1, li, ul {
 ul {
   list-style: none;
   margin-top: .25rem;
-}
-pre {
-  z-index: -1;
 }
 </style>
