@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Demo app</title>
+  </head>
+  <body>
+    <div id="app">
+        <map-composable
+        :projection="projection"
+        :projection-config="projectionConfig"
+      >
+        <template v-slot:default="{path, projectionFunc}">
+          <map-graticule fill="yellow" stroke="white" clip-path="url(#rsm-sphere)"></map-graticule>
+          <map-sphere stroke="blue" :stroke-width="2"></map-sphere>
+          <map-geographies
+            :geography="geoUrl"
+            :path="path"
+          >
+            <template v-slot:default="{geographies}">
+              <map-geography
+                v-for="geo in geographies"
+                :key="geo.rsmKey"
+                :geography="geo"
+                fill="white"
+                stroke="blue"
+                clipPath="url(#rsm-sphere)"
+              ></geography>
+            </template>
+          </map-geographies>
+          <map-line :from="[10, 1]" :to="[-100, 120]"></map-line>
+          <map-annotation :subject="[0, 1]" :dx="-40" :dy="20">
+            <text :x="-8">Annotation</text>
+          </map-annotation>
+          <map-marker :coordinates="[10,1]">
+            <circle r="8" fill="black" />
+          </map-marker>
+        </template>
+      </map-composable>
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+  <script src="https://unpkg.com/@vue/composition-api/dist/vue-composition-api.umd.js"></script>
+  <script>
+    Vue.use(vueCompositionApi.default);
+  </script>
+  <script src="https://unpkg.com/d3@5.12.0/dist/d3.min.js"></script>
+  <script src="../dist/VueMap.iife.js"></script>
+  <script>
+    Vue.use(VueMap)
+    var app = new Vue({
+      el: "#app",
+      setup() {
+        const rotate = vueCompositionApi.reactive({
+          x: 0,
+          y: 0
+        })
+        const projectionConfig = vueCompositionApi.computed(() => ({
+          rotate: [rotate.x, rotate.y],
+          scale: 200
+        }))
+        const animate = () => {
+          rotate.x = rotate.x + 1;
+          rotate.y = rotate.y - 0.1;
+          requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+        return {
+          projectionConfig,
+          projection: "geoOrthographic",
+          geoUrl:
+            "./word-110m.json",
+          width: window.innerWidth,
+          height: window.innerHeight
+        };
+      }
+    });
+  </script>
+</html>
+
+
+<style>
+div, svg, html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+</style>
