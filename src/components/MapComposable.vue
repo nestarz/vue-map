@@ -49,12 +49,17 @@ export default {
       width.value = parent.value.$el.offsetWidth;
     };
     // @ts-ignore: Unreachable code error
-    const resizeObserver = new ResizeObserver(setSize);
+    const resizeObserver = window.ResizeObserver && new ResizeObserver(setSize);
     watch(parent, () => {
       if (!parent.value) return;
       setSize();
-      resizeObserver.observe(parent.value.$el);
+      resizeObserver && resizeObserver.observe(parent.value.$el);
     });
+    // @ts-ignore: Unreachable code error
+    if (!window.ResizeObserver) {
+      setTimeout(setSize, 10);
+      window.addEventListener('resize', setSize, true);
+    }
     return {
       svg,
       parent,

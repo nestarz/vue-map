@@ -386,13 +386,18 @@ var VueMap = (function (VueCompositionApi, d3) {
               width.value = parent.value.$el.offsetWidth;
           };
           // @ts-ignore: Unreachable code error
-          const resizeObserver = new ResizeObserver(setSize);
+          const resizeObserver = window.ResizeObserver && new ResizeObserver(setSize);
           VueCompositionApi.watch(parent, () => {
               if (!parent.value)
                   return;
               setSize();
-              resizeObserver.observe(parent.value.$el);
+              resizeObserver && resizeObserver.observe(parent.value.$el);
           });
+          // @ts-ignore: Unreachable code error
+          if (!window.ResizeObserver) {
+              setTimeout(setSize, 10);
+              window.addEventListener('resize', setSize, true);
+          }
           return {
               svg,
               parent,
@@ -728,12 +733,14 @@ var VueMap = (function (VueCompositionApi, d3) {
         if (!context || (context && !context.canvas) || (context && !context.svg))
           return;
 
+        const path = new Path2D(props.geography.svgPath);
+        
         const ctx = context.svg.getContext("2d");
         ctx.beginPath();
         ctx.strokeStyle = attrs.stroke || "black";
         ctx.lineWidth = attrs.strokeWidth || 1;
-        ctx.fillStyle = attrs.stroke || "black";
-        const path = new Path2D(props.geography.svgPath);
+        ctx.fillStyle = attrs.fill || "black";
+        ctx.fill(path);
         ctx.stroke(path);
       });
       return {
@@ -1048,16 +1055,30 @@ var VueMap = (function (VueCompositionApi, d3) {
           stroke: { type: String, default: "currentcolor" },
           strokeWidth: { type: Number, default: 0.5 }
       },
-      setup() {
+      setup(props) {
           const context = VueCompositionApi.inject(ContextSymbol);
+          const spherePath = VueCompositionApi.computed(() => {
+              if (!context)
+                  return null;
+              context.update;
+              return context.path({ type: "Sphere" });
+          });
+          VueCompositionApi.watch(() => {
+              // TODO: not any change
+              if (!context || (context && !context.canvas) || (context && !context.svg))
+                  return;
+              const ctx = context.svg.getContext("2d");
+              const path = new Path2D(spherePath.value);
+              ctx.beginPath();
+              ctx.lineWidth = props.strokeWidth || 1;
+              ctx.strokeStyle = props.stroke || "black";
+              ctx.fillStyle = props.fill || "yellow";
+              ctx.fill(path);
+              ctx.stroke(path);
+          });
           return {
               canvas: context && context.canvas,
-              spherePath: VueCompositionApi.computed(() => {
-                  if (!context)
-                      return null;
-                  context.update;
-                  return context.path({ type: "Sphere" });
-              })
+              spherePath
           };
       }
   };
@@ -1103,7 +1124,7 @@ var VueMap = (function (VueCompositionApi, d3) {
     /* style */
     const __vue_inject_styles__$7 = undefined;
     /* scoped */
-    const __vue_scope_id__$7 = "data-v-2075cd1c";
+    const __vue_scope_id__$7 = "data-v-e5839798";
     /* module identifier */
     const __vue_module_identifier__$7 = undefined;
     /* functional template */

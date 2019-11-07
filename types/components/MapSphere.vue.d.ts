@@ -18,7 +18,7 @@ declare const _default: {
             default: number;
         };
     };
-    setup(): {
+    setup(props: any): {
         canvas: any;
         spherePath: import("@vue/composition-api").Ref<string>;
     };

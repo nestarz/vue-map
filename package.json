@@ -47,5 +47,8 @@
   "dependencies": {
     "topojson-client": "^3.0.1",
     "versor": "^0.0.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

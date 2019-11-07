@@ -8,6 +8,45 @@
       <div class="info">
         <h1>@eliaspourquoi/vue-map</h1>
         <p>https://github.com/nestarz/vue-map</p>
+        <ul>
+          <li>1. Canvas</li>
+          <li>2. SVG</li>
+        </ul>
+        <pre>
+          <code>
+  &lt;map-composable
+    :projection=&quot;projection&quot;
+    :projection-config=&quot;projectionConfig&quot;
+    :canvas=&quot;true&quot;
+  &gt;
+    &lt;template v-slot:default=&quot;{path, projectionFunc}&quot;&gt;
+      &lt;map-graticule fill=&quot;white&quot; stroke=&quot;black&quot; :stroke-width=&quot;5&quot;&gt;&lt;/map-graticule&gt;
+      &lt;map-sphere stroke=&quot;black&quot; :stroke-width=&quot;2&quot;&gt;&lt;/map-sphere&gt;
+      &lt;map-geographies
+        :geography=&quot;geoUrl&quot;
+        :path=&quot;path&quot;
+      &gt;
+        &lt;template v-slot:default=&quot;{geographies}&quot;&gt;
+          &lt;map-geography
+            v-for=&quot;geo in geographies&quot;
+            :key=&quot;geo.rsmKey&quot;
+            :geography=&quot;geo&quot;
+            fill=&quot;white&quot;
+            stroke=&quot;black&quot;
+          &gt;&lt;/geography&gt;
+        &lt;/template&gt;
+      &lt;/map-geographies&gt;
+      &lt;map-line :from=&quot;[10, 1]&quot; :to=&quot;[-100, 120]&quot; stroke=&quot;red&quot;&gt;&lt;/map-line&gt;
+      &lt;map-annotation :subject=&quot;[0, 1]&quot; :dx=&quot;-40&quot; :dy=&quot;20&quot;&gt;
+        &lt;text :x=&quot;-8&quot;&gt;Annotation&lt;/text&gt;
+      &lt;/map-annotation&gt;
+      &lt;map-marker :coordinates=&quot;[10,1]&quot;&gt;
+        &lt;circle r=&quot;8&quot; fill=&quot;black&quot; /&gt;
+      &lt;/map-marker&gt;
+    &lt;/template&gt;
+  &lt;/map-composable&gt;
+        </code>
+        </pre>
       </div>
       <div v-for="x in 2" :key="x" class="container">
         <map-composable
@@ -16,8 +55,8 @@
           :canvas="x === 1"
         >
           <template v-slot:default="{path, projectionFunc}">
-            <map-graticule fill="yellow" stroke="white" clip-path="url(#rsm-sphere)" :stroke-width="5"></map-graticule>
-            <map-sphere stroke="blue" :stroke-width="2"></map-sphere>
+            <map-graticule fill="transparent" stroke="black" clip-path="url(#rsm-sphere)" :stroke-width="5"></map-graticule>
+            <map-sphere stroke="black" :stroke-width="2"></map-sphere>
             <map-geographies
               :geography="geoUrl"
               :path="path"
@@ -28,12 +67,12 @@
                   :key="geo.rsmKey"
                   :geography="geo"
                   fill="white"
-                  stroke="blue"
+                  stroke="black"
                   clipPath="url(#rsm-sphere)"
                 ></geography>
               </template>
             </map-geographies>
-            <map-line :from="[10, 1]" :to="[-100, 120]"></map-line>
+            <map-line :from="[10, 1]" :to="[-100, 120]" stroke="red"></map-line>
             <map-annotation :subject="[0, 1]" :dx="-40" :dy="20">
               <text :x="-8">Annotation</text>
             </map-annotation>
@@ -91,6 +130,11 @@ div, html, body {
   width: 100%;
   margin: 0;
   padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#app {
+  display: grid;
 }
 
 .container {
@@ -100,9 +144,19 @@ div, html, body {
   position: fixed;
   padding: 1rem;
   pointer-events: none;
+  z-index: -1;
 }
-p, h1 {
+p, h1, li, ul {
   pointer-events: all;
   width: max-content;
+  margin: 0;
+  padding: 0;
+}
+ul {
+  list-style: none;
+  margin-top: .25rem;
+}
+pre {
+  z-index: -1;
 }
 </style>
