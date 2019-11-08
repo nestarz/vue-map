@@ -24,7 +24,6 @@
     "@typescript-eslint/eslint-plugin": "^2.6.1",
     "@typescript-eslint/parser": "^2.6.1",
     "eslint": "^6.1.0",
-    "install-peers": "^1.0.3",
     "jest": "^24.8.0",
     "postcss": "^7.0.17",
     "rollup": "^1.17.0",
