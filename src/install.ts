@@ -10,7 +10,8 @@ const plugin = {
       let comp: ComponentOptions<Vue> = (<any>components)[name];
       Vue.component(name, comp);
     });
-  },
-  ...components
+  }
 };
+
+export * from "./components/index";
 export default plugin;

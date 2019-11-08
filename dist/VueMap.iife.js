@@ -1,4 +1,4 @@
-var VueMap = (function (VueCompositionApi, d3) {
+var VueMap = (function (exports, VueCompositionApi, d3) {
   'use strict';
 
   var VueCompositionApi__default = 'default' in VueCompositionApi ? VueCompositionApi['default'] : VueCompositionApi;
@@ -1260,10 +1260,20 @@ var VueMap = (function (VueCompositionApi, d3) {
               let comp = components[name];
               Vue.component(name, comp);
           });
-      },
-      ...components
+      }
   };
 
-  return plugin;
+  exports.MapAnnotation = MapAnnotation;
+  exports.MapComposable = MapComposable;
+  exports.MapGeographies = MapGeographies;
+  exports.MapGeography = MapGeography;
+  exports.MapGraticule = MapGraticule;
+  exports.MapLine = MapLine;
+  exports.MapMarker = MapMarker;
+  exports.MapProvider = mapProvider;
+  exports.MapSphere = MapSphere;
+  exports.default = plugin;
 
-}(vueCompositionApi, d3));
+  return exports;
+
+}({}, vueCompositionApi, d3));

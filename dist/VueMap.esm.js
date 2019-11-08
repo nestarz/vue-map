@@ -1258,8 +1258,8 @@ const plugin = {
             let comp = components[name];
             Vue.component(name, comp);
         });
-    },
-    ...components
+    }
 };
 
 export default plugin;
+export { MapAnnotation, MapComposable, MapGeographies, MapGeography, MapGraticule, MapLine, MapMarker, mapProvider as MapProvider, MapSphere };
