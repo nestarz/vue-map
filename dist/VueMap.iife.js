@@ -313,7 +313,6 @@ var VueMap = (function (VueCompositionApi, d3) {
 
   const isOldIE = typeof navigator !== 'undefined' &&
       /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
-  //# sourceMappingURL=index.mjs.map
 
   /* script */
   const __vue_script__ = script;
@@ -517,6 +516,7 @@ var VueMap = (function (VueCompositionApi, d3) {
   }
 
   function feature(topology, o) {
+    if (typeof o === "string") o = topology.objects[o];
     return o.type === "GeometryCollection"
         ? {type: "FeatureCollection", features: o.geometries.map(function(o) { return feature$1(topology, o); })}
         : feature$1(topology, o);
