@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { createConnectorPath } from "./utils";
-import { computed, inject } from "@vue/composition-api";
+import { computed, inject, watch, onMounted } from "@vue/composition-api";
 import ContextSymbol from "./context";
 
 type Vector2 = [number, number];
@@ -16,6 +16,10 @@ type Props = {
   dx: number;
   dy: number;
   curve: number;
+  text: string;
+  textSize: string;
+  textFamily: string;
+  textColor: string;
 };
 
 export default {
@@ -24,9 +28,13 @@ export default {
     subject: Array,
     dx: { type: Number, default: 30 },
     dy: { type: Number, default: 30 },
-    curve: { type: Number, default: 0 }
+    curve: { type: Number, default: 0 },
+    text: { type: String },
+    textSize: { type: String, default: "15px" },
+    textFamily: { type: String, default: "Arial" },
+    textColor: { type: String, default: "black" },
   },
-  setup(props: Props) {
+  setup(props: Props, { root, attrs }: any) {
     const context = inject(ContextSymbol);
     const point = computed(() => {
       if (!context) return null;
@@ -36,6 +44,29 @@ export default {
 
       const [x, y] = context.projection(props.subject);
       return { x, y };
+    });
+
+    const update = computed(() => context && context.update);
+    watch([update, () => props.text], () => {
+      root.$nextTick(() => {
+        if (!props.text) return;
+        if (
+          !context ||
+          (context && !context.canvas) ||
+          (context && !context.svg)
+        )
+          return;
+
+        const ctx = context.svg.getContext("2d");
+        ctx.font = `${props.textSize} ${props.textFamily}`;
+        ctx.fillStyle = props.textColor;
+        ctx.fillText(props.text, point.value.x + props.dx, point.value.y + props.dy);
+      });
+    });
+
+    onMounted(() => {
+      if (!context) return;
+      setTimeout(() => (context.update = Math.random()), 100); // hack
     });
 
     return {

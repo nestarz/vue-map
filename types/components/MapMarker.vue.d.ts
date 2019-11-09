@@ -9,7 +9,7 @@ declare const _default: {
             required: boolean;
         };
     };
-    setup(props: Props): {
+    setup(props: Props, { attrs, root }: any): {
         canvas: any;
         transform: import("@vue/composition-api").Ref<string>;
     };

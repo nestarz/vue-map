@@ -1,5 +1,12 @@
 <template>
-  <path :d="graticulePath" :fill="fill" :stroke="stroke" class="rsm-graticule" v-if="!canvas" />
+  <path
+    :d="graticulePath"
+    class="rsm-graticule"
+    stroke="black" 
+    stroke-width="1"
+    v-bind="$attrs"
+    v-if="!canvas"
+  />
 </template>
 
 <script lang="ts">
@@ -11,17 +18,11 @@ import ContextSymbol from "./context";
 
 type Vector2 = [number, number];
 type Props = {
-  fill: String;
-  stroke: String;
-  strokeWidth: number;
   step: Vector2;
 };
 
 export default {
   props: {
-    fill: { type: String, default: "transparent" },
-    stroke: { type: String, default: "currentcolor" },
-    strokeWidth: { type: Number, default: 1 },
     step: { type: Array, default: () => [10, 10] }
   },
   setup(props: Props, { attrs }: any) {
@@ -35,14 +36,15 @@ export default {
 
     watch(() => {
       // TODO: not any change
-      if(!context || context && !context.canvas || context && !context.svg) return;
+      if (!context || (context && !context.canvas) || (context && !context.svg))
+        return;
       const ctx = context.svg.getContext("2d");
-      
+
       const path = new Path2D(graticulePath.value);
       ctx.beginPath();
-      ctx.lineWidth = props.strokeWidth || 1;
-      ctx.strokeStyle = props.stroke || "black";
-      ctx.fillStyle = props.fill || "yellow";
+      ctx.lineWidth = attrs["stroke-width"] || 1;
+      ctx.strokeStyle = attrs.stroke || "black";
+      ctx.fillStyle = attrs.fill || "yellow";
       ctx.fill(path);
       ctx.stroke(path);
     });

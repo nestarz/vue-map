@@ -75,7 +75,7 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
     return v0[0] * v1[0] + v0[1] * v1[1] + v0[2] * v1[2];
   }
 
-  const zoom = (projection, path, svg, update) => {
+  const zoom = (projection, path, svg, scale, update) => {
       let v0; // Mouse position in Cartesian coordinates at start of drag gesture.
       let r0; // Projection rotation as Euler angles at start.
       let q0; // Projection rotation as versor at start.
@@ -85,26 +85,16 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
           q0 = versor(r0);
       };
       const zoomed = () => {
-          projection.scale((d3.event.transform.k * (svg.clientHeight - 10)) / 10);
+          projection.scale(d3.event.transform.k * scale);
           var v1 = versor.cartesian(projection.rotate(r0).invert(d3.mouse(svg))), q1 = versor.multiply(q0, versor.delta(v0, v1)), r1 = versor.rotation(q1);
           projection.rotate(r1);
           update.value = Math.random();
-          d3.select(svg)
-              .selectAll("path")
-              .each((_, i, nodes) => {
-              const svgElement = nodes[i];
-              if (svgElement.__vue__ &&
-                  svgElement.attributes.d &&
-                  svgElement.__vue__.geography) {
-                  const d = path(svgElement.__vue__.geography);
-                  if (d) {
-                      svgElement.setAttribute("d", d);
-                  }
-              }
-          });
       };
       return d3.zoom()
-          .scaleExtent([2, 10])
+          .filter(function () {
+          return !d3.event.button && d3.event.type != "dblclick";
+      })
+          .scaleExtent([1, 10])
           .on("start", zoomstarted)
           .on("zoom", zoomed);
   };
@@ -117,36 +107,11 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
           v0 = versor.cartesian([x, y]);
           r0 = projection.rotate();
           q0 = versor(r0);
-          d3.select(svg)
-              .selectAll(".point")
-              .remove();
-          d3.select(svg)
-              .insert("path")
-              .datum({ type: "Point", coordinates: [x, y] })
-              .attr("class", "point");
-          // .attr("d", (d, i, nodes) => path(nodes[i].__vue__.geography));
       };
       const dragged = () => {
-          const [x, y] = projection.invert(d3.mouse(svg));
           var v1 = versor.cartesian(projection.rotate(r0).invert(d3.mouse(svg))), q1 = versor.multiply(q0, versor.delta(v0, v1)), r1 = versor.rotation(q1);
           projection.rotate(r1);
           update.value = Math.random();
-          d3.select(svg)
-              .selectAll(".point")
-              .datum({ type: "Point", coordinates: [x, y] });
-          d3.select(svg)
-              .selectAll("path")
-              .each((_, i, nodes) => {
-              const svgElement = nodes[i];
-              if (svgElement.__vue__ &&
-                  svgElement.attributes.d &&
-                  svgElement.__vue__.geography) {
-                  const d = path(svgElement.__vue__.geography);
-                  if (d) {
-                      svgElement.setAttribute("d", d);
-                  }
-              }
-          });
       };
       const dragended = () => {
           //emit("coord", coord.value, dragended.value);
@@ -227,7 +192,13 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
           });
           VueCompositionApi.watch([svg], () => {
               d3.select(svg.value).call(drag(projectionFunc.value, path.value, svg.value, update));
-              d3.select(svg.value).call(zoom(projectionFunc.value, path.value, svg.value, update));
+              d3.select(svg.value).call(zoom(projectionFunc.value, path.value, svg.value, projectionConfig.value.scale, update));
+          });
+          VueCompositionApi.watch(update, () => {
+              if (!props.canvas || !svg.value)
+                  return;
+              const ctx = svg.value.getContext("2d");
+              ctx.clearRect(0, 0, svg.value.width, svg.value.height);
           });
           return {
               path,
@@ -313,6 +284,7 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
 
   const isOldIE = typeof navigator !== 'undefined' &&
       /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+  //# sourceMappingURL=index.mjs.map
 
   /* script */
   const __vue_script__ = script;
@@ -645,8 +617,6 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
               return prepareFeatures(features.value, context.path);
           });
           const setup = () => {
-              if (typeof window === `undefined`)
-                  return;
               if (isString(geography.value)) {
                   fetchGeographies(geography.value).then(geos => {
                       if (geos)
@@ -658,14 +628,6 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
               }
           };
           VueCompositionApi.watch(geography, setup);
-          VueCompositionApi.onMounted(setup);
-          const update = VueCompositionApi.computed(() => context && context.update);
-          VueCompositionApi.watch(update, () => {
-              if (!context || (context && !context.canvas) || (context && !context.svg))
-                  return;
-              const ctx = context.svg.getContext("2d");
-              ctx.clearRect(0, 0, context.svg.width, context.svg.height);
-          });
           return {
               geographies
           };
@@ -728,7 +690,9 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
     setup(props, { attrs }) {
       const context = VueCompositionApi.inject(ContextSymbol);
 
-      VueCompositionApi.watch(() => {
+      const update = VueCompositionApi.computed(() => context && context.update);
+
+      VueCompositionApi.watch([update, () => props.geography], () => {
         // TODO: not any change
         if (!context || (context && !context.canvas) || (context && !context.svg))
           return;
@@ -808,9 +772,6 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
 
   var script$4 = {
       props: {
-          fill: { type: String, default: "transparent" },
-          stroke: { type: String, default: "currentcolor" },
-          strokeWidth: { type: Number, default: 1 },
           step: { type: Array, default: () => [10, 10] }
       },
       setup(props, { attrs }) {
@@ -823,14 +784,14 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
           });
           VueCompositionApi.watch(() => {
               // TODO: not any change
-              if (!context || context && !context.canvas || context && !context.svg)
+              if (!context || (context && !context.canvas) || (context && !context.svg))
                   return;
               const ctx = context.svg.getContext("2d");
               const path = new Path2D(graticulePath.value);
               ctx.beginPath();
-              ctx.lineWidth = props.strokeWidth || 1;
-              ctx.strokeStyle = props.stroke || "black";
-              ctx.fillStyle = props.fill || "yellow";
+              ctx.lineWidth = attrs["stroke-width"] || 1;
+              ctx.strokeStyle = attrs.stroke || "black";
+              ctx.fillStyle = attrs.fill || "yellow";
               ctx.fill(path);
               ctx.stroke(path);
           });
@@ -850,10 +811,22 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
     return !_vm.canvas
-      ? _c("path", {
-          staticClass: "rsm-graticule",
-          attrs: { d: _vm.graticulePath, fill: _vm.fill, stroke: _vm.stroke }
-        })
+      ? _c(
+          "path",
+          _vm._b(
+            {
+              staticClass: "rsm-graticule",
+              attrs: {
+                d: _vm.graticulePath,
+                stroke: "black",
+                "stroke-width": "1"
+              }
+            },
+            "path",
+            _vm.$attrs,
+            false
+          )
+        )
       : _vm._e()
   };
   var __vue_staticRenderFns__$4 = [];
@@ -897,7 +870,7 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
           strokeWidth: { type: Number, default: 3 },
           fill: { type: String, default: "transparent" }
       },
-      setup(props) {
+      setup(props, { root }) {
           const context = VueCompositionApi.inject(ContextSymbol);
           const lineData = VueCompositionApi.computed(() => {
               if (!context)
@@ -908,17 +881,24 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
                   coordinates: props.coordinates || [props.from, props.to]
               });
           });
-          VueCompositionApi.watch(() => {
-              // TODO: not any change
-              if (!context || context && !context.canvas || context && !context.svg)
+          const update = VueCompositionApi.computed(() => context && context.update);
+          VueCompositionApi.watch([update, () => props], () => {
+              if (!context || (context && !context.canvas) || (context && !context.svg))
                   return;
-              const ctx = context.svg.getContext("2d");
-              ctx.beginPath();
-              ctx.strokeStyle = props.stroke;
-              ctx.lineWidth = props.strokeWidth;
-              ctx.fillStyle = props.stroke;
-              const path = new Path2D(lineData.value);
-              ctx.stroke(path);
+              root.$nextTick(() => {
+                  const ctx = context.svg.getContext("2d");
+                  ctx.beginPath();
+                  ctx.strokeStyle = props.stroke;
+                  ctx.lineWidth = props.strokeWidth;
+                  ctx.fillStyle = props.stroke;
+                  const path = new Path2D(lineData.value);
+                  ctx.stroke(path);
+              });
+          });
+          VueCompositionApi.onMounted(() => {
+              if (!context)
+                  return;
+              setTimeout(() => (context.update = Math.random()), 100); // hack
           });
           return {
               canvas: context && context.canvas,
@@ -983,16 +963,37 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
       props: {
           coordinates: { type: Array, required: true }
       },
-      setup(props) {
+      setup(props, { attrs, root }) {
           const context = VueCompositionApi.inject(ContextSymbol);
+          const point = VueCompositionApi.computed(() => {
+              if (!context)
+                  return { x: 0, y: 0 };
+              context.update;
+              const [x, y] = context.projection(props.coordinates);
+              return { x, y };
+          });
+          const update = VueCompositionApi.computed(() => context && context.update);
+          VueCompositionApi.watch([update, () => props], () => {
+              if (!context || (context && !context.canvas) || (context && !context.svg))
+                  return;
+              root.$nextTick(() => {
+                  const ctx = context.svg.getContext("2d");
+                  ctx.beginPath();
+                  const radius = attrs.r || 5;
+                  ctx.arc(point.value.x, point.value.y, radius, 0, 2 * Math.PI, false);
+                  ctx.fillStyle = attrs.fill || 'black';
+                  ctx.fill();
+              });
+          });
+          VueCompositionApi.onMounted(() => {
+              if (!context)
+                  return;
+              setTimeout(() => (context.update = Math.random()), 100); // hack
+          });
           return {
               canvas: context && context.canvas,
               transform: VueCompositionApi.computed(() => {
-                  if (!context)
-                      return null;
-                  context.update;
-                  const [x, y] = context.projection(props.coordinates);
-                  return `translate(${x}, ${y})`;
+                  return `translate(${point.value.x}, ${point.value.y})`;
               })
           };
       }
@@ -1124,7 +1125,7 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
     /* style */
     const __vue_inject_styles__$7 = undefined;
     /* scoped */
-    const __vue_scope_id__$7 = "data-v-e5839798";
+    const __vue_scope_id__$7 = "data-v-625d3dbe";
     /* module identifier */
     const __vue_module_identifier__$7 = undefined;
     /* functional template */
@@ -1156,9 +1157,13 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
           subject: Array,
           dx: { type: Number, default: 30 },
           dy: { type: Number, default: 30 },
-          curve: { type: Number, default: 0 }
+          curve: { type: Number, default: 0 },
+          text: { type: String },
+          textSize: { type: String, default: "15px" },
+          textFamily: { type: String, default: "Arial" },
+          textColor: { type: String, default: "black" },
       },
-      setup(props) {
+      setup(props, { root, attrs }) {
           const context = VueCompositionApi.inject(ContextSymbol);
           const point = VueCompositionApi.computed(() => {
               if (!context)
@@ -1168,6 +1173,26 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
                   return { x: 0, y: 0 };
               const [x, y] = context.projection(props.subject);
               return { x, y };
+          });
+          const update = VueCompositionApi.computed(() => context && context.update);
+          VueCompositionApi.watch([update, () => props.text], () => {
+              root.$nextTick(() => {
+                  if (!props.text)
+                      return;
+                  if (!context ||
+                      (context && !context.canvas) ||
+                      (context && !context.svg))
+                      return;
+                  const ctx = context.svg.getContext("2d");
+                  ctx.font = `${props.textSize} ${props.textFamily}`;
+                  ctx.fillStyle = props.textColor;
+                  ctx.fillText(props.text, point.value.x + props.dx, point.value.y + props.dy);
+              });
+          });
+          VueCompositionApi.onMounted(() => {
+              if (!context)
+                  return;
+              setTimeout(() => (context.update = Math.random()), 100); // hack
           });
           return {
               canvas: context && context.canvas,

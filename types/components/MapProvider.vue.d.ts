@@ -12,7 +12,7 @@ declare type Props = {
     height: number;
     projection: string | Function;
     projectionConfig: ProjectionConfig;
-    svg: SVGSVGElement;
+    svg: any;
     canvas: Boolean;
 };
 declare const _default: {

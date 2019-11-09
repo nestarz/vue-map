@@ -60,6 +60,7 @@ export default {
       setTimeout(setSize, 10);
       window.addEventListener('resize', setSize, true);
     }
+
     return {
       svg,
       parent,

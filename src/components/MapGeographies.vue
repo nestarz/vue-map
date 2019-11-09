@@ -42,12 +42,11 @@ export default {
     const geographies = computed(() => {
       if (!context) return null;
       context.update;
+      
       return prepareFeatures(features.value, context.path);
     });
 
     const setup = () => {
-      if (typeof window === `undefined`) return;
-
       if (isString(geography.value)) {
         fetchGeographies(geography.value).then(geos => {
           if (geos) features.value = getFeatures(geos, props.parseGeographies);
@@ -55,20 +54,9 @@ export default {
       } else {
         features.value = getFeatures(geography.value, props.parseGeographies);
       }
-    };
+    };  
 
     watch(geography, setup);
-    onMounted(setup);
-
-    const update = computed(() => context && context.update);
-    watch(update, () => {
-      if (!context || (context && !context.canvas) || (context && !context.svg))
-        return;
-
-      const ctx = context.svg.getContext("2d");
-
-      ctx.clearRect(0, 0, context.svg.width, context.svg.height);
-    });
 
     return {
       geographies

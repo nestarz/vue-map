@@ -64,7 +64,7 @@ type Props = {
   height: number;
   projection: string | Function;
   projectionConfig: ProjectionConfig;
-  svg: SVGSVGElement;
+  svg: any;
   canvas: Boolean
 };
 
@@ -163,8 +163,18 @@ export default {
         drag(projectionFunc.value, path.value, svg.value, update)
       );
       select(svg.value).call(
-        zoom(projectionFunc.value, path.value, svg.value, update)
+        zoom(projectionFunc.value, path.value, svg.value, projectionConfig.value.scale, update)
       );
+    });
+
+
+    watch(update, () => {
+      if (!props.canvas || !svg.value)
+        return;
+
+      const ctx = svg.value.getContext("2d");
+
+      ctx.clearRect(0, 0, svg.value.width, svg.value.height);
     });
 
     return {

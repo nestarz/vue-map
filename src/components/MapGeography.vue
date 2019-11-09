@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { inject, watch } from "@vue/composition-api";
+import { inject, watch, computed } from "@vue/composition-api";
 import ContextSymbol from "./context.ts";
 
 export default {
@@ -21,7 +21,9 @@ export default {
   setup(props, { attrs }) {
     const context = inject(ContextSymbol);
 
-    watch(() => {
+    const update = computed(() => context && context.update);
+
+    watch([update, () => props.geography], () => {
       // TODO: not any change
       if (!context || (context && !context.canvas) || (context && !context.svg))
         return;
