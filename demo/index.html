@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Demo app</title>
-  </head>
-  <body>
-    <div id="app">
-      <div class="info">
-        <h1>@eliaspourquoi/vue-map</h1>
-        <a href="https://github.com/nestarz/vue-map">https://github.com/nestarz/vue-map</a>
-        <ul>
-          <li>1. Canvas</li>
-          <li>2. SVG</li>
-        </ul>
-        <pre>
+
+<head>
+  <title>Demo app</title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="info">
+      <h1>@eliaspourquoi/vue-map</h1>
+      <a href="https://github.com/nestarz/vue-map">https://github.com/nestarz/vue-map</a>
+      <ul>
+        <li>1. Canvas</li>
+        <li>2. SVG</li>
+      </ul>
+      <pre>
           <code>
   &lt;map-composable
     :projection=&quot;projection&quot;
@@ -47,116 +49,114 @@
   &lt;/map-composable&gt;
         </code>
         </pre>
-      </div>
-      <div v-for="x in 2" :key="x" class="container">
-        <map-composable
-          :projection="projection"
-          :projection-config="projectionConfig"
-          :canvas="x === 1"
-        >
-          <template v-slot:default="{path, projectionFunc}">
-            <map-graticule fill="transparent" stroke="black" clip-path="url(#rsm-sphere)" :stroke-width="5"></map-graticule>
-            <map-sphere stroke="black" :stroke-width="2"></map-sphere>
-            <map-geographies
-              :geography="geoUrl"
-              :path="path"
-            >
-              <template v-slot:default="{geographies}">
-                <map-geography
-                  v-for="geo in geographies"
-                  :key="geo.rsmKey"
-                  :geography="geo"
-                  fill="white"
-                  stroke="black"
-                  clipPath="url(#rsm-sphere)"
-                ></map-geography>
-                <map-line :from="[10, 1]" :to="[-100, 120]" stroke="red"></map-line>
-                <map-annotation :subject="[0, 1]" :dx="-40" :dy="20" text="Annotation">
-                  <text :x="-8">Annotation</text>
-                </map-annotation>
-                <map-marker :coordinates="[10,1]" r="8" fill="black">
-                  <circle r="8" fill="black" />
-                </map-marker>
-              </template>
-            </map-geographies>
-          </template>
-        </map-composable>
-      </div>
     </div>
-  </body>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
-  <script src="https://unpkg.com/@vue/composition-api/dist/vue-composition-api.umd.js"></script>
-  <script>
-    Vue.use(vueCompositionApi.default);
-  </script>
-  <script src="https://unpkg.com/d3@5.12.0/dist/d3.min.js"></script>
-  <script src="../dist/VueMap.iife.js"></script>
-  <script>
-    Vue.use(VueMap.default);
-    var app = new Vue({
-      el: "#app",
-      setup() {
-        const rotate = vueCompositionApi.reactive({
-          x: 0,
-          y: 0
-        })
-        const projectionConfig = vueCompositionApi.computed(() => ({
-          rotate: [rotate.x, rotate.y],
-          scale: 200
-        }))
-        const animate = () => {
-          rotate.x = rotate.x + 1;
-          rotate.y = rotate.y - 0.1;
-          requestAnimationFrame(animate);
-        }
-        // requestAnimationFrame(animate);
-        return {
-          projectionConfig,
-          projection: "geoOrthographic",
-          geoUrl:
-            "./word-110m.json",
-          width: window.innerWidth,
-          height: window.innerHeight
-        };
+    <div v-for="x in 2" :key="x" class="container">
+      <map-composable :projection="projection" :projection-config="projectionConfig" :canvas="x === 1">
+        <template v-slot:default="{path, projectionFunc}">
+          <map-graticule fill="transparent" stroke="black" clip-path="url(#rsm-sphere)" :stroke-width="5">
+          </map-graticule>
+          <map-sphere stroke="black" :stroke-width="2"></map-sphere>
+          <map-geographies :geography="geoUrl" :path="path">
+            <template v-slot:default="{geographies}">
+              <map-geography v-for="geo in geographies" :key="geo.rsmKey" :geography="geo" fill="white" stroke="black"
+                clipPath="url(#rsm-sphere)"></map-geography>
+              <map-line :from="[10, 1]" :to="[-100, 120]" stroke="red"></map-line>
+              <map-annotation :subject="[0, 1]" :dx="-40" :dy="20" text="Annotation">
+                <text :x="-8">Annotation</text>
+              </map-annotation>
+              <map-marker :coordinates="[x,y]" r="1" fill="black" v-for="{x,y} in randomMarkers">
+                <circle r="1" fill="black" />
+              </map-marker>
+            </template>
+          </map-geographies>
+        </template>
+      </map-composable>
+    </div>
+  </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+<script src="https://unpkg.com/@vue/composition-api/dist/vue-composition-api.umd.js"></script>
+<script>
+  Vue.use(vueCompositionApi.default);
+</script>
+<script src="https://unpkg.com/d3@5.12.0/dist/d3.min.js"></script>
+<script src="../dist/VueMap.iife.js"></script>
+<script>
+  Vue.use(VueMap.default);
+  var app = new Vue({
+    el: "#app",
+    setup() {
+      const rotate = vueCompositionApi.reactive({
+        x: 0,
+        y: 0
+      })
+      const projectionConfig = vueCompositionApi.computed(() => ({
+        rotate: [rotate.x, rotate.y],
+        scale: 200
+      }))
+      const animate = () => {
+        rotate.x = rotate.x + 1;
+        rotate.y = rotate.y - 0.1;
+        requestAnimationFrame(animate);
       }
-    });
-  </script>
+      // requestAnimationFrame(animate);
+      return {
+        projectionConfig,
+        projection: "geoOrthographic",
+        geoUrl:
+          "./word-110m.json",
+        width: window.innerWidth,
+        height: window.innerHeight,
+        randomMarkers: [...Array(1000).keys()].map(x => ({ x: Math.random() * 280, y: Math.random() * 280 }))
+      };
+    }
+  });
+</script>
+
 </html>
 
 
 <style>
-div, html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
+  div,
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
 
-#app {
-  display: grid;
-}
+  #app {
+    display: grid;
+  }
 
-a {
-  color: black;
-}
+  a {
+    color: black;
+  }
 
-.container {
-  height: 50vh;
-}
-.info {
-  position: fixed;
-  padding: 1rem;
-  pointer-events: none;
-}
-p, h1, li, ul,a {
-  pointer-events: all;
-  width: max-content;
-  margin: 0;
-  padding: 0;
-}
-ul {
-  list-style: none;
-  margin-top: .25rem;
-}
+  .container {
+  }
+
+  .info {
+    position: fixed;
+    padding: 1rem;
+    pointer-events: none;
+  }
+
+  p,
+  h1,
+  li,
+  ul,
+  a {
+    pointer-events: all;
+    width: max-content;
+    margin: 0;
+    padding: 0;
+  }
+
+  ul {
+    list-style: none;
+    margin-top: .25rem;
+  }
 </style>

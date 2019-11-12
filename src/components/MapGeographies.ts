@@ -1,16 +1,9 @@
-<template>
-  <g class="rsm-geographies">
-    <slot v-bind="{geographies}" />
-  </g>
-</template>
-
-<script lang="ts">
 import {
   watch,
   ref,
   computed,
-  onMounted,
   inject,
+  createElement as h,
   Ref
 } from "@vue/composition-api";
 import { Topology, GeometryObject } from "topojson-specification";
@@ -34,7 +27,7 @@ export default {
     geography: [String, Object, Array],
     parseGeographies: Function
   },
-  setup(props: Props) {
+  setup(props: Props, { slots, scopedSlots }: any) {
     const context = inject(ContextSymbol);
 
     const features: Ref<Array<GeoJSON.Feature>> = ref(null);
@@ -42,7 +35,7 @@ export default {
     const geographies = computed(() => {
       if (!context) return null;
       context.update;
-      
+
       return prepareFeatures(features.value, context.path);
     });
 
@@ -54,13 +47,18 @@ export default {
       } else {
         features.value = getFeatures(geography.value, props.parseGeographies);
       }
-    };  
+    };
 
     watch(geography, setup);
 
-    return {
-      geographies
-    };
+    if (context && !context.canvas) {
+      return () => h('g', { class: 'vue-map-geographies' }, [slots.default({
+        geographies: geographies.value
+      })])
+    }
+    
+    return () => h('g', slots.default({
+      geographies: geographies.value
+    }))
   }
 };
-</script>

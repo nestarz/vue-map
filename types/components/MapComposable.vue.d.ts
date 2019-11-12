@@ -16,7 +16,7 @@ declare const _default: {
         canvas: BooleanConstructor;
     };
     setup(): {
-        svg: Ref<SVGSVGElement>;
+        svg: Ref<SVGSVGElement | HTMLCanvasElement>;
         parent: any;
         width: Ref<number>;
         height: Ref<number>;

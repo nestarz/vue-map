@@ -1,24 +1,11 @@
-<template>
-  <path
-    role="geography"
-    class="rsm-geography"
-    :d="geography.svgPath"
-    v-bind="$attrs"
-    v-if="!canvas"
-  >
-    <slot />
-  </path>
-</template>
-
-<script>
-import { inject, watch, computed } from "@vue/composition-api";
-import ContextSymbol from "./context.ts";
+import { inject, watch, computed, createElement as h } from "@vue/composition-api";
+import ContextSymbol from "./context";
 
 export default {
   props: {
     geography: { type: Object, required: true }
   },
-  setup(props, { attrs }) {
+  setup(props: any, { attrs, slots }: any) {
     const context = inject(ContextSymbol);
 
     const update = computed(() => context && context.update);
@@ -29,7 +16,7 @@ export default {
         return;
 
       const path = new Path2D(props.geography.svgPath);
-      
+
       const ctx = context.svg.getContext("2d");
       ctx.beginPath();
       ctx.strokeStyle = attrs.stroke || "black";
@@ -38,9 +25,9 @@ export default {
       ctx.fill(path);
       ctx.stroke(path);
     });
-    return {
-      canvas: context.canvas
-    };
+
+    if (context && !context.canvas) {
+      return () => h('path', { class: 'vue-map-geography', attrs: { role: 'geography', d: props.geography.svgPath, ...attrs } })
+    }
   }
 };
-</script>

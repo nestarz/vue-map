@@ -353,13 +353,13 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
           const width = VueCompositionApi.ref(0);
           const height = VueCompositionApi.ref(0);
           const setSize = () => {
-              height.value = parent.value.$el.offsetHeight;
-              width.value = parent.value.$el.offsetWidth;
+              height.value = svg.value.getBoundingClientRect().height;
+              width.value = svg.value.getBoundingClientRect().width;
           };
           // @ts-ignore: Unreachable code error
           const resizeObserver = window.ResizeObserver && new ResizeObserver(setSize);
-          VueCompositionApi.watch(parent, () => {
-              if (!parent.value)
+          VueCompositionApi.watch([parent, svg], () => {
+              if (!parent.value || !svg.value)
                   return;
               setSize();
               resizeObserver && resizeObserver.observe(parent.value.$el);
@@ -367,7 +367,7 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
           // @ts-ignore: Unreachable code error
           if (!window.ResizeObserver) {
               setTimeout(setSize, 10);
-              window.addEventListener('resize', setSize, true);
+              window.addEventListener("resize", setSize, true);
           }
           return {
               svg,
@@ -390,6 +390,7 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
       "map-provider",
       {
         ref: "parent",
+        staticStyle: { position: "relative" },
         attrs: {
           width: _vm.width,
           height: _vm.height,
@@ -400,31 +401,50 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
         }
       },
       [
-        !_vm.canvas
-          ? _c(
-              "svg",
-              _vm._b(
-                {
-                  ref: "svg",
-                  staticClass: "rsm-svg",
-                  attrs: {
-                    viewBox: "0 0 " + _vm.width + " " + _vm.height,
-                    preserveAspectRatio: "xMidYMid meet"
-                  }
-                },
-                "svg",
-                _vm.$attrs,
-                false
-              ),
-              [_vm._t("default")],
-              2
-            )
-          : _c(
-              "canvas",
-              { ref: "svg", attrs: { width: _vm.width, height: _vm.height } },
-              [_vm._t("default")],
-              2
-            )
+        _c(
+          "div",
+          {
+            staticStyle: {
+              position: "absolute",
+              top: "0",
+              right: "0",
+              left: "0",
+              bottom: "0"
+            }
+          },
+          [
+            !_vm.canvas
+              ? _c(
+                  "svg",
+                  _vm._b(
+                    {
+                      ref: "svg",
+                      staticClass: "rsm-svg",
+                      staticStyle: { height: "100%", width: "100%" },
+                      attrs: {
+                        viewBox: "0 0 " + _vm.width + " " + _vm.height,
+                        preserveAspectRatio: "xMidYMid meet"
+                      }
+                    },
+                    "svg",
+                    _vm.$attrs,
+                    false
+                  ),
+                  [_vm._t("default")],
+                  2
+                )
+              : _c(
+                  "canvas",
+                  {
+                    ref: "svg",
+                    staticStyle: { height: "100%", width: "100%" },
+                    attrs: { width: _vm.width, height: _vm.height }
+                  },
+                  [_vm._t("default")],
+                  2
+                )
+          ]
+        )
       ]
     )
   };
@@ -601,12 +621,12 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
       return typeof geo === "string";
   }
 
-  var script$2 = {
+  var MapGeographies = {
       props: {
           geography: [String, Object, Array],
           parseGeographies: Function
       },
-      setup(props) {
+      setup(props, { slots, scopedSlots }) {
           const context = VueCompositionApi.inject(ContextSymbol);
           const features = VueCompositionApi.ref(null);
           const geography = VueCompositionApi.computed(() => props.geography);
@@ -628,149 +648,44 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
               }
           };
           VueCompositionApi.watch(geography, setup);
-          return {
-              geographies
-          };
+          if (context && !context.canvas) {
+              return () => VueCompositionApi.createElement('g', { class: 'vue-map-geographies' }, [slots.default({
+                      geographies: geographies.value
+                  })]);
+          }
+          return () => VueCompositionApi.createElement('g', slots.default({
+              geographies: geographies.value
+          }));
       }
   };
 
-  /* script */
-  const __vue_script__$2 = script$2;
-
-  /* template */
-  var __vue_render__$2 = function() {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return _c(
-      "g",
-      { staticClass: "rsm-geographies" },
-      [_vm._t("default", null, null, { geographies: _vm.geographies })],
-      2
-    )
-  };
-  var __vue_staticRenderFns__$2 = [];
-  __vue_render__$2._withStripped = true;
-
-    /* style */
-    const __vue_inject_styles__$2 = undefined;
-    /* scoped */
-    const __vue_scope_id__$2 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$2 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$2 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    var MapGeographies = normalizeComponent(
-      { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
-      __vue_inject_styles__$2,
-      __vue_script__$2,
-      __vue_scope_id__$2,
-      __vue_is_functional_template__$2,
-      __vue_module_identifier__$2,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  //
-
-  var script$3 = {
-    props: {
-      geography: { type: Object, required: true }
-    },
-    setup(props, { attrs }) {
-      const context = VueCompositionApi.inject(ContextSymbol);
-
-      const update = VueCompositionApi.computed(() => context && context.update);
-
-      VueCompositionApi.watch([update, () => props.geography], () => {
-        // TODO: not any change
-        if (!context || (context && !context.canvas) || (context && !context.svg))
-          return;
-
-        const path = new Path2D(props.geography.svgPath);
-        
-        const ctx = context.svg.getContext("2d");
-        ctx.beginPath();
-        ctx.strokeStyle = attrs.stroke || "black";
-        ctx.lineWidth = attrs.strokeWidth || 1;
-        ctx.fillStyle = attrs.fill || "black";
-        ctx.fill(path);
-        ctx.stroke(path);
-      });
-      return {
-        canvas: context.canvas
-      };
-    }
+  var MapGeography = {
+      props: {
+          geography: { type: Object, required: true }
+      },
+      setup(props, { attrs, slots }) {
+          const context = VueCompositionApi.inject(ContextSymbol);
+          const update = VueCompositionApi.computed(() => context && context.update);
+          VueCompositionApi.watch([update, () => props.geography], () => {
+              // TODO: not any change
+              if (!context || (context && !context.canvas) || (context && !context.svg))
+                  return;
+              const path = new Path2D(props.geography.svgPath);
+              const ctx = context.svg.getContext("2d");
+              ctx.beginPath();
+              ctx.strokeStyle = attrs.stroke || "black";
+              ctx.lineWidth = attrs.strokeWidth || 1;
+              ctx.fillStyle = attrs.fill || "black";
+              ctx.fill(path);
+              ctx.stroke(path);
+          });
+          if (context && !context.canvas) {
+              return () => VueCompositionApi.createElement('path', { class: 'vue-map-geography', attrs: { role: 'geography', d: props.geography.svgPath, ...attrs } });
+          }
+      }
   };
 
-  /* script */
-  const __vue_script__$3 = script$3;
-
-  /* template */
-  var __vue_render__$3 = function() {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return !_vm.canvas
-      ? _c(
-          "path",
-          _vm._b(
-            {
-              staticClass: "rsm-geography",
-              attrs: { role: "geography", d: _vm.geography.svgPath }
-            },
-            "path",
-            _vm.$attrs,
-            false
-          ),
-          [_vm._t("default")],
-          2
-        )
-      : _vm._e()
-  };
-  var __vue_staticRenderFns__$3 = [];
-  __vue_render__$3._withStripped = true;
-
-    /* style */
-    const __vue_inject_styles__$3 = undefined;
-    /* scoped */
-    const __vue_scope_id__$3 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$3 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$3 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    var MapGeography = normalizeComponent(
-      { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
-      __vue_inject_styles__$3,
-      __vue_script__$3,
-      __vue_scope_id__$3,
-      __vue_is_functional_template__$3,
-      __vue_module_identifier__$3,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  var script$4 = {
+  var script$2 = {
       props: {
           step: { type: Array, default: () => [10, 10] }
       },
@@ -803,10 +718,10 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
   };
 
   /* script */
-  const __vue_script__$4 = script$4;
+  const __vue_script__$2 = script$2;
 
   /* template */
-  var __vue_render__$4 = function() {
+  var __vue_render__$2 = function() {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -829,17 +744,17 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
         )
       : _vm._e()
   };
-  var __vue_staticRenderFns__$4 = [];
-  __vue_render__$4._withStripped = true;
+  var __vue_staticRenderFns__$2 = [];
+  __vue_render__$2._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$4 = undefined;
+    const __vue_inject_styles__$2 = undefined;
     /* scoped */
-    const __vue_scope_id__$4 = undefined;
+    const __vue_scope_id__$2 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$4 = undefined;
+    const __vue_module_identifier__$2 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$4 = false;
+    const __vue_is_functional_template__$2 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -849,19 +764,19 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
 
     
     var MapGraticule = normalizeComponent(
-      { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
-      __vue_inject_styles__$4,
-      __vue_script__$4,
-      __vue_scope_id__$4,
-      __vue_is_functional_template__$4,
-      __vue_module_identifier__$4,
+      { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
+      __vue_inject_styles__$2,
+      __vue_script__$2,
+      __vue_scope_id__$2,
+      __vue_is_functional_template__$2,
+      __vue_module_identifier__$2,
       false,
       undefined,
       undefined,
       undefined
     );
 
-  var script$5 = {
+  var script$3 = {
       props: {
           from: { type: Array, default: () => [0, 0] },
           to: { type: Array, default: () => [0, 0] },
@@ -908,10 +823,10 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
   };
 
   /* script */
-  const __vue_script__$5 = script$5;
+  const __vue_script__$3 = script$3;
 
   /* template */
-  var __vue_render__$5 = function() {
+  var __vue_render__$3 = function() {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -927,17 +842,17 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
         })
       : _vm._e()
   };
-  var __vue_staticRenderFns__$5 = [];
-  __vue_render__$5._withStripped = true;
+  var __vue_staticRenderFns__$3 = [];
+  __vue_render__$3._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$5 = undefined;
+    const __vue_inject_styles__$3 = undefined;
     /* scoped */
-    const __vue_scope_id__$5 = undefined;
+    const __vue_scope_id__$3 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$5 = undefined;
+    const __vue_module_identifier__$3 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$5 = false;
+    const __vue_is_functional_template__$3 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -947,23 +862,25 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
 
     
     var MapLine = normalizeComponent(
-      { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
-      __vue_inject_styles__$5,
-      __vue_script__$5,
-      __vue_scope_id__$5,
-      __vue_is_functional_template__$5,
-      __vue_module_identifier__$5,
+      { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
+      __vue_inject_styles__$3,
+      __vue_script__$3,
+      __vue_scope_id__$3,
+      __vue_is_functional_template__$3,
+      __vue_module_identifier__$3,
       false,
       undefined,
       undefined,
       undefined
     );
 
-  var script$6 = {
+  var MapMarker = {
       props: {
-          coordinates: { type: Array, required: true }
+          coordinates: { type: Array, required: true },
+          r: Number,
+          fill: String
       },
-      setup(props, { attrs, root }) {
+      setup(props, { attrs, root, slots }) {
           const context = VueCompositionApi.inject(ContextSymbol);
           const point = VueCompositionApi.computed(() => {
               if (!context)
@@ -990,65 +907,14 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
                   return;
               setTimeout(() => (context.update = Math.random()), 100); // hack
           });
-          return {
-              canvas: context && context.canvas,
-              transform: VueCompositionApi.computed(() => {
-                  return `translate(${point.value.x}, ${point.value.y})`;
-              })
-          };
+          if (context && !context.canvas) {
+              const transform = VueCompositionApi.computed(() => `translate(${point.value.x}, ${point.value.y})`);
+              return () => VueCompositionApi.createElement('g', { class: 'vue-map-marker', attrs: { transform: transform.value } }, [slots.default()]);
+          }
       }
   };
 
-  /* script */
-  const __vue_script__$6 = script$6;
-
-  /* template */
-  var __vue_render__$6 = function() {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return !_vm.canvas
-      ? _c(
-          "g",
-          { staticClass: "rsm-marker", attrs: { transform: _vm.transform } },
-          [_vm._t("default")],
-          2
-        )
-      : _vm._e()
-  };
-  var __vue_staticRenderFns__$6 = [];
-  __vue_render__$6._withStripped = true;
-
-    /* style */
-    const __vue_inject_styles__$6 = undefined;
-    /* scoped */
-    const __vue_scope_id__$6 = undefined;
-    /* module identifier */
-    const __vue_module_identifier__$6 = undefined;
-    /* functional template */
-    const __vue_is_functional_template__$6 = false;
-    /* style inject */
-    
-    /* style inject SSR */
-    
-    /* style inject shadow dom */
-    
-
-    
-    var MapMarker = normalizeComponent(
-      { render: __vue_render__$6, staticRenderFns: __vue_staticRenderFns__$6 },
-      __vue_inject_styles__$6,
-      __vue_script__$6,
-      __vue_scope_id__$6,
-      __vue_is_functional_template__$6,
-      __vue_module_identifier__$6,
-      false,
-      undefined,
-      undefined,
-      undefined
-    );
-
-  var script$7 = {
+  var script$4 = {
       inheritAttrs: false,
       props: {
           id: { type: String, default: "rsm-sphere" },
@@ -1085,9 +951,9 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
   };
 
   /* script */
-  const __vue_script__$7 = script$7;
+  const __vue_script__$4 = script$4;
   /* template */
-  var __vue_render__$7 = function() {
+  var __vue_render__$4 = function() {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1119,17 +985,17 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
         ])
       : _vm._e()
   };
-  var __vue_staticRenderFns__$7 = [];
-  __vue_render__$7._withStripped = true;
+  var __vue_staticRenderFns__$4 = [];
+  __vue_render__$4._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$7 = undefined;
+    const __vue_inject_styles__$4 = undefined;
     /* scoped */
-    const __vue_scope_id__$7 = "data-v-625d3dbe";
+    const __vue_scope_id__$4 = "data-v-625d3dbe";
     /* module identifier */
-    const __vue_module_identifier__$7 = undefined;
+    const __vue_module_identifier__$4 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$7 = false;
+    const __vue_is_functional_template__$4 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -1139,19 +1005,19 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
 
     
     var MapSphere = normalizeComponent(
-      { render: __vue_render__$7, staticRenderFns: __vue_staticRenderFns__$7 },
-      __vue_inject_styles__$7,
-      __vue_script__$7,
-      __vue_scope_id__$7,
-      __vue_is_functional_template__$7,
-      __vue_module_identifier__$7,
+      { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
+      __vue_inject_styles__$4,
+      __vue_script__$4,
+      __vue_scope_id__$4,
+      __vue_is_functional_template__$4,
+      __vue_module_identifier__$4,
       false,
       undefined,
       undefined,
       undefined
     );
 
-  var script$8 = {
+  var script$5 = {
       inheritAttrs: false,
       props: {
           subject: Array,
@@ -1203,10 +1069,10 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
   };
 
   /* script */
-  const __vue_script__$8 = script$8;
+  const __vue_script__$5 = script$5;
 
   /* template */
-  var __vue_render__$8 = function() {
+  var __vue_render__$5 = function() {
     var _vm = this;
     var _h = _vm.$createElement;
     var _c = _vm._self._c || _h;
@@ -1231,17 +1097,17 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
         )
       : _vm._e()
   };
-  var __vue_staticRenderFns__$8 = [];
-  __vue_render__$8._withStripped = true;
+  var __vue_staticRenderFns__$5 = [];
+  __vue_render__$5._withStripped = true;
 
     /* style */
-    const __vue_inject_styles__$8 = undefined;
+    const __vue_inject_styles__$5 = undefined;
     /* scoped */
-    const __vue_scope_id__$8 = undefined;
+    const __vue_scope_id__$5 = undefined;
     /* module identifier */
-    const __vue_module_identifier__$8 = undefined;
+    const __vue_module_identifier__$5 = undefined;
     /* functional template */
-    const __vue_is_functional_template__$8 = false;
+    const __vue_is_functional_template__$5 = false;
     /* style inject */
     
     /* style inject SSR */
@@ -1251,12 +1117,12 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
 
     
     var MapAnnotation = normalizeComponent(
-      { render: __vue_render__$8, staticRenderFns: __vue_staticRenderFns__$8 },
-      __vue_inject_styles__$8,
-      __vue_script__$8,
-      __vue_scope_id__$8,
-      __vue_is_functional_template__$8,
-      __vue_module_identifier__$8,
+      { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
+      __vue_inject_styles__$5,
+      __vue_script__$5,
+      __vue_scope_id__$5,
+      __vue_is_functional_template__$5,
+      __vue_module_identifier__$5,
       false,
       undefined,
       undefined,

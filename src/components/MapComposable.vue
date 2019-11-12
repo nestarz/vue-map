@@ -7,7 +7,9 @@
     :svg="svg"
     :canvas="canvas"
     ref="parent"
+    style="position: relative;"
   >
+  <div style="position: absolute; top: 0; right: 0; left: 0; bottom: 0;">
     <svg
       :viewBox="`0 0 ${width} ${height}`"
       preserveAspectRatio="xMidYMid meet"
@@ -15,12 +17,20 @@
       v-bind="$attrs"
       ref="svg"
       v-if="!canvas"
+      style="height: 100%; width: 100%"
     >
       <slot />
     </svg>
-    <canvas :width="width" :height="height" ref="svg" v-else>
+    <canvas
+      :width="width"
+      :height="height"
+      ref="svg"
+      style="height: 100%; width: 100%"
+      v-else
+    >
       <slot />
     </canvas>
+  </div>
   </map-provider>
 </template>
 
@@ -40,25 +50,26 @@ export default {
     canvas: Boolean
   },
   setup() {
-    const svg: Ref<SVGSVGElement> = ref(null);
+    const svg: Ref<SVGSVGElement | HTMLCanvasElement> = ref(null);
     const parent: any = ref(null);
     const width = ref(0);
     const height = ref(0);
     const setSize = () => {
-      height.value = parent.value.$el.offsetHeight;
-      width.value = parent.value.$el.offsetWidth;
+      height.value = svg.value.getBoundingClientRect().height;
+      width.value = svg.value.getBoundingClientRect().width;
     };
     // @ts-ignore: Unreachable code error
     const resizeObserver = window.ResizeObserver && new ResizeObserver(setSize);
-    watch(parent, () => {
-      if (!parent.value) return;
+    watch([parent, svg], () => {
+      if (!parent.value || !svg.value) return;
+
       setSize();
       resizeObserver && resizeObserver.observe(parent.value.$el);
     });
     // @ts-ignore: Unreachable code error
     if (!window.ResizeObserver) {
       setTimeout(setSize, 10);
-      window.addEventListener('resize', setSize, true);
+      window.addEventListener("resize", setSize, true);
     }
 
     return {

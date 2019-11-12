@@ -1,23 +1,20 @@
-<template>
-  <g class="rsm-marker" :transform="transform" v-if="!canvas">
-    <slot />
-  </g>
-</template>
-
-<script lang="ts">
-import { computed, inject, watch, onMounted } from "@vue/composition-api";
+import { computed, inject, watch, onMounted, createElement as h } from "@vue/composition-api";
 import ContextSymbol from "./context";
 
 type Vector2 = [number, number];
 type Props = {
   coordinates: Vector2;
+  r: number;
+  fill: string;
 };
 
 export default {
   props: {
-    coordinates: { type: Array, required: true }
+    coordinates: { type: Array, required: true },
+    r: Number,
+    fill: String
   },
-  setup(props: Props, { attrs, root }: any) {
+  setup(props: Props, { attrs, root, slots }: any) {
     const context = inject(ContextSymbol);
 
     const point = computed(() => {
@@ -48,12 +45,9 @@ export default {
       setTimeout(() => (context.update = Math.random()), 100); // hack
     });
 
-    return {
-      canvas: context && context.canvas,
-      transform: computed(() => {
-        return `translate(${point.value.x}, ${point.value.y})`;
-      })
-    };
+    if (context && !context.canvas) {
+      const transform = computed(() => `translate(${point.value.x}, ${point.value.y})`);
+      return () => h('g', { class: 'vue-map-marker', attrs: { transform: transform.value } }, [slots.default()])
+    }
   }
 };
-</script>
