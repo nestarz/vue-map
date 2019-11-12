@@ -1,6 +1,6 @@
 {
   "name": "@eliaspourquoi/vue-map",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "map for vue.",
   "main": "dist/VueMap.esm.js",
   "module": "dist/VueMap.esm.js",
