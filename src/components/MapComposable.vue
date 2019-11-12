@@ -7,30 +7,24 @@
     :svg="svg"
     :canvas="canvas"
     ref="parent"
-    style="position: relative;"
+    style="position: relative; height: 100%; width: 100%;"
   >
-  <div style="position: absolute; top: 0; right: 0; left: 0; bottom: 0;">
-    <svg
-      :viewBox="`0 0 ${width} ${height}`"
-      preserveAspectRatio="xMidYMid meet"
-      class="rsm-svg"
-      v-bind="$attrs"
-      ref="svg"
-      v-if="!canvas"
-      style="height: 100%; width: 100%"
-    >
-      <slot />
-    </svg>
-    <canvas
-      :width="width"
-      :height="height"
-      ref="svg"
-      style="height: 100%; width: 100%"
-      v-else
-    >
-      <slot />
-    </canvas>
-  </div>
+    <div style="position: absolute; top: 0; right: 0; left: 0; bottom: 0;">
+      <svg
+        :viewBox="`0 0 ${width} ${height}`"
+        preserveAspectRatio="xMidYMid meet"
+        class="rsm-svg"
+        v-bind="$attrs"
+        ref="svg"
+        v-if="!canvas"
+        style="height: 100%; width: 100%"
+      >
+        <slot />
+      </svg>
+      <canvas :width="width" :height="height" ref="svg" style="height: 100%; width: 100%" v-else>
+        <slot />
+      </canvas>
+    </div>
   </map-provider>
 </template>
 

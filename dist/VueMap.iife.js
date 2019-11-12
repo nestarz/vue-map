@@ -284,7 +284,6 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
 
   const isOldIE = typeof navigator !== 'undefined' &&
       /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
-  //# sourceMappingURL=index.mjs.map
 
   /* script */
   const __vue_script__ = script;
@@ -390,7 +389,7 @@ var VueMap = (function (exports, VueCompositionApi, d3) {
       "map-provider",
       {
         ref: "parent",
-        staticStyle: { position: "relative" },
+        staticStyle: { position: "relative", height: "100%", width: "100%" },
         attrs: {
           width: _vm.width,
           height: _vm.height,
